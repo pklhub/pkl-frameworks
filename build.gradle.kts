@@ -15,6 +15,8 @@ pklConfigs {
         register("spring-4.2.0") {
             dependency("org.springframework.boot:spring-boot-autoconfigure:4.2.0")
             dependency("org.springframework.boot:spring-boot:4.2.0")
+            dependency("org.springframework.boot:spring-boot-flyway:4.2.0")
+            dependency("org.flywaydb:flyway-core:12.11.0")
             dependency("org.springframework.boot:spring-boot-jdbc:4.2.0")
             dependency("org.springframework.boot:spring-boot-r2dbc:4.2.0")
             dependency("org.springframework.boot:spring-boot-session:4.2.0")
@@ -32,6 +34,7 @@ pklConfigs {
         register("spring-3.3.0") {
             dependency("org.springframework.boot:spring-boot-autoconfigure:3.3.0")
             dependency("org.springframework.boot:spring-boot:3.3.0")
+            dependency("org.flywaydb:flyway-core:10.10.0")
             dependency("org.springframework.session:spring-session-core:3.3.0")
             dependency("org.springframework:spring-tx:6.1.6")
             dependency("org.springframework:spring-web:6.1.8")
@@ -41,6 +44,7 @@ pklConfigs {
         register("spring-2.7.0") {
             dependency("org.springframework.boot:spring-boot-autoconfigure:2.7.0")
             dependency("org.springframework.boot:spring-boot:2.7.0")
+            dependency("org.flywaydb:flyway-core:8.5.11")
             dependency("org.springframework.session:spring-session-core:2.7.0")
             dependency("org.springframework:spring-tx:5.3.20")
             dependency("org.springframework:spring-web:5.3.20")

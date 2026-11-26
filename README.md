@@ -38,6 +38,10 @@ dependencies {
 
 Import modules using the dependency aliases, for example `import "@spring/Server.pkl"`.
 
+The Spring Boot generators include `Flyway.pkl` in new builds. Import it with `import "@spring/Flyway.pkl"` from a release that includes it.
+
+For IntelliJ IDEA and VS Code, open the consumer workspace containing `PklProject` and the importing module. Run `pkl project resolve` from the directory containing `PklProject`, then run **Sync Projects** in IntelliJ IDEA or **Pkl: Sync projects** in VS Code. The importing file must be under the `PklProject` that declares the alias.
+
 ## Build and release
 
 The generator resolves the renderer from the [pkl-k8s-app v0.25.0 GitHub release](https://github.com/pklhub/pkl-k8s-app/releases/tag/v0.25.0). That package declares the upstream `pkl-k8s` dependency.
