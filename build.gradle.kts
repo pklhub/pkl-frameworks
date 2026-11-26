@@ -12,6 +12,23 @@ pklConfigs {
     secret(".*password.*")
     secret(".*secret.*")
     generators {
+        register("spring-4.2.0") {
+            dependency("org.springframework.boot:spring-boot-autoconfigure:4.2.0")
+            dependency("org.springframework.boot:spring-boot:4.2.0")
+            dependency("org.springframework.boot:spring-boot-jdbc:4.2.0")
+            dependency("org.springframework.boot:spring-boot-r2dbc:4.2.0")
+            dependency("org.springframework.boot:spring-boot-session:4.2.0")
+            dependency("org.springframework.boot:spring-boot-servlet:4.2.0")
+            dependency("org.springframework.boot:spring-boot-tomcat:4.2.0")
+            dependency("org.springframework.boot:spring-boot-transaction:4.2.0")
+            dependency("org.springframework.boot:spring-boot-web-server:4.2.0")
+            dependency("org.springframework.boot:spring-boot-webmvc:4.2.0")
+            dependency("org.springframework.session:spring-session-core:4.2.0")
+            dependency("org.springframework:spring-tx:7.1.0")
+            dependency("org.springframework:spring-web:7.1.0")
+            dependency("org.springframework:spring-core:7.1.0")
+            dependency("io.r2dbc:r2dbc-spi:1.0.0.RELEASE")
+        }
         register("spring-3.3.0") {
             dependency("org.springframework.boot:spring-boot-autoconfigure:3.3.0")
             dependency("org.springframework.boot:spring-boot:3.3.0")
@@ -29,6 +46,14 @@ pklConfigs {
             dependency("org.springframework:spring-web:5.3.20")
             dependency("org.springframework:spring-core:5.3.20")
             dependency("io.r2dbc:r2dbc-spi:1.0.0.RELEASE")
+        }
+        register("spring-grpc-client-4.2.0") {
+            dependency("org.springframework.boot:spring-boot-grpc-client:4.2.0")
+            dependency("org.springframework.grpc:spring-grpc-core:1.1.2")
+        }
+        register("spring-grpc-server-4.2.0") {
+            dependency("org.springframework.boot:spring-boot-grpc-server:4.2.0")
+            dependency("org.springframework.grpc:spring-grpc-core:1.1.2")
         }
         register("spring-grpc-client-2.13.1") {
             dependency("net.devh:grpc-client-spring-boot-autoconfigure:2.13.1.RELEASE")
@@ -53,6 +78,11 @@ pklConfigs {
             dependency("net.devh:grpc-client-spring-boot-starter:3.1.0.RELEASE")
             dependency("org.springframework:spring-core:6.1.6")
             dependency("net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE")
+        }
+        register("sentry-8.66.0") {
+            dependency("io.sentry:sentry-spring-boot-4:8.66.0")
+            dependency("io.sentry:sentry:8.66.0")
+            dependency("io.sentry:sentry-spring-7:8.66.0")
         }
         register("sentry-6.28.0") {
             dependency("io.sentry:sentry-spring-boot:6.28.0")

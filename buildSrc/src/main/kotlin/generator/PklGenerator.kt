@@ -23,6 +23,7 @@ class PklGenerator(classLoader: ClassLoader, secretFields: Set<Pattern>) {
 
         val wellKnownTypes = mapOf(
             "java.lang.String" to StringType,
+            "io.sentry.FilterString" to StringType,
             "org.springframework.util.MimeType" to StringType,
             "org.springframework.core.io.Resource" to StringType,
             "org.springframework.http.MediaType" to StringType,
@@ -55,6 +56,7 @@ class PklGenerator(classLoader: ClassLoader, secretFields: Set<Pattern>) {
             "java.util.Set<java.lang.String>" to StringListType,
             "java.util.Map<java.lang.String,java.lang.String>"
                     to TypeMapper("Mapping<String,String>") { null },
+            "java.util.Map" to TypeMapper("Mapping<Any,Any>") { null },
             "java.util.Properties" to TypeMapper("Mapping<String,String>") { null },
             "java.io.File" to EmptyStringType,
             "java.util.Locale" to EmptyStringType,
@@ -78,6 +80,7 @@ class PklGenerator(classLoader: ClassLoader, secretFields: Set<Pattern>) {
     }
 
     val writtenClasses : MutableSet<String> = HashSet()
+    private val declaredTypes = mutableSetOf<String>()
 
     fun generate(name: String, tree: List<MetadataGroupTree>) : PklModule {
         val mainClassName = name.split(".").last()
@@ -136,6 +139,7 @@ class PklGenerator(classLoader: ClassLoader, secretFields: Set<Pattern>) {
         }
 
         if (tree.enums != null) {
+            declaredTypes.add(tree.className)
             return Pair(PklTypeAlias(
                 tree.className,
                 tree.enums
@@ -223,6 +227,7 @@ class PklGenerator(classLoader: ClassLoader, secretFields: Set<Pattern>) {
                 }
             }
 
+            declaredTypes.add(name)
             return Pair(PklClass(
                 open = !tree.final,
                 name = name,
@@ -277,14 +282,7 @@ class PklGenerator(classLoader: ClassLoader, secretFields: Set<Pattern>) {
         allClasses: Set<String>,
         defaultValueMapper: (List<String>) -> String?
     ) : PklProperty {
-        val typeMapper = wellKnownTypes[genericClass] ?:
-            javaClassWriter.tryToLoadClass(genericClass)?.let {
-                generateClass(it, mainClassName, allClasses)?.let { cls ->
-                    classes.add(cls.first)
-                    classes.addAll(cls.second)
-                }
-                TypeMapper(it.className) { null }
-            } ?: AnyType
+        val typeMapper = collectionElementType(classes, genericClass, mainClassName, allClasses)
 
         val type = "$collectionClass<${typeMapper.type}>"
         val name = property.name.toCamelCase()
@@ -313,21 +311,8 @@ class PklGenerator(classLoader: ClassLoader, secretFields: Set<Pattern>) {
         allClasses: Set<String>
     ) : PklProperty {
 
-        val keyTypeMapper = wellKnownTypes[keyClass] ?: javaClassWriter.tryToLoadClass(keyClass)?.let {
-            generateClass(it, mainClassName, allClasses)?.let { cls ->
-                classes.add(cls.first)
-                classes.addAll(cls.second)
-            }
-            TypeMapper(it.className) { null }
-        } ?: AnyType
-
-        val valueTypeMapper = wellKnownTypes[valueClass] ?: javaClassWriter.tryToLoadClass(valueClass)?.let {
-            generateClass(it, mainClassName, allClasses)?.let { cls ->
-                classes.add(cls.first)
-                classes.addAll(cls.second)
-            }
-            TypeMapper(it.className) { null }
-        } ?: AnyType
+        val keyTypeMapper = collectionElementType(classes, keyClass, mainClassName, allClasses)
+        val valueTypeMapper = collectionElementType(classes, valueClass, mainClassName, allClasses)
 
         val type = "Mapping<${keyTypeMapper.type},${valueTypeMapper.type}>"
 
@@ -338,6 +323,21 @@ class PklGenerator(classLoader: ClassLoader, secretFields: Set<Pattern>) {
             null,
             property.description
         )
+    }
+
+    private fun collectionElementType(
+        classes: MutableList<PklClassElement>,
+        javaType: String,
+        moduleName: String,
+        allClasses: Set<String>
+    ): TypeMapper {
+        wellKnownTypes[javaType]?.let { return it }
+        val tree = javaClassWriter.tryToLoadClass(javaType) ?: return AnyType
+        generateClass(tree, moduleName, allClasses)?.let { (element, nested) ->
+            classes.add(element)
+            classes.addAll(nested)
+        }
+        return if (tree.className in declaredTypes) TypeMapper(tree.className) { null } else AnyType
     }
 
     private fun appendFieldDescription(cw: StringBuilder, description: String?) {

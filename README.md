@@ -1,63 +1,47 @@
-# HPKL Frameworks
+# Pkl Frameworks
 
-## Overview
+Pkl packages generated from Spring Boot, gRPC, and Sentry configuration metadata.
 
-The `hpkl-frameworks` repository provides scripts for generating configurations for various frameworks, packaging them into `.pkl` files, and publishing them as consumable packages. This simplifies integration and dependency management for your projects.
+## Available packages
 
-### Key Features
-- **Configuration Generation:** Automates the generation of configuration files for supported frameworks.
-- **Package Publishing:** Publishes configurations as reusable packages.
-- **Framework Support:** Includes a variety of frameworks and versions.
+| Framework | Package |
+| --- | --- |
+| Spring Boot 4.2.0, 3.3.0, 2.7.0 | `spring-4.2.0`, `spring-3.3.0`, `spring-2.7.0` |
+| Spring Boot 4.2.0 gRPC with Spring gRPC 1.1.2 | `spring-grpc-client-4.2.0`, `spring-grpc-server-4.2.0` |
+| grpc-ecosystem 3.1.0 and 2.13.1 | `spring-grpc-client-<version>`, `spring-grpc-server-<version>`, `spring-grpc-client-server-<version>` |
+| Sentry 8.66.0 for Spring Boot 4 and Sentry 6.28.0 | `sentry-8.66.0`, `sentry-6.28.0` |
 
----
+## Use a package
 
-## Supported Frameworks
+Choose a tag from [GitHub Releases](https://github.com/pklhub/pkl-frameworks/releases). The framework version is part of the package name. The version after `@` is the Pkl Frameworks release version and matches the release tag without its leading `v`.
 
-### Spring Boot
-- **3.3.0**
-- **2.7.0**
+For example, for a release tagged `v0.3.0`, add these dependencies to `PklProject` and run `pkl project resolve`.
 
-### Spring gRPC
-- **Client**: 2.13.1, 3.1.0
-- **Server**: 2.13.1, 3.1.0
-
-### Sentry
-- **6.28.0**
-
----
-
-## Installation and Usage
-
-To use the configurations provided by `hpkl-frameworks`, include the desired dependency in your PklProject. Below is an example for adding Spring dependencies:
-
-### Example: Adding Dependencies
 ```pkl
+amends "pkl:Project"
+
 dependencies {
-  ["spring"] { uri = "package://pkg.hpkl.io/hpkl-frameworks/spring-3.3.0@0.2.0" }
+  ["spring"] {
+    uri = "package://github.com/pklhub/pkl-frameworks/releases/download/v0.3.0/spring-4.2.0@0.3.0"
+  }
+  ["grpcClient"] {
+    uri = "package://github.com/pklhub/pkl-frameworks/releases/download/v0.3.0/spring-grpc-client-4.2.0@0.3.0"
+  }
+  ["grpcServer"] {
+    uri = "package://github.com/pklhub/pkl-frameworks/releases/download/v0.3.0/spring-grpc-server-4.2.0@0.3.0"
+  }
+  ["sentry"] {
+    uri = "package://github.com/pklhub/pkl-frameworks/releases/download/v0.3.0/sentry-8.66.0@0.3.0"
+  }
 }
 ```
 
-Replace `spring-3.3.0@0.2.0` with the desired package version and framework.
+Import modules using the dependency aliases, for example `import "@spring/Server.pkl"`.
 
----
+## Build and release
 
-## How It Works
+The generator resolves the renderer from the [pkl-k8s-app v0.25.0 GitHub release](https://github.com/pklhub/pkl-k8s-app/releases/tag/v0.25.0). That package declares the upstream `pkl-k8s` dependency.
 
-1. **Configuration Scripts:** Scripts generate framework-specific configuration files.
-2. **Packaging:** The `.pkl` format is used for packaging the configurations.
-3. **Publishing:** Packages are published to a repository for seamless consumption.
+Run `./gradlew build generatePkl` with Java 17 to generate packages locally. Push a version tag such as `v0.3.0` to publish the package metadata, ZIP archives, and checksums directly to the matching GitHub release.
 
----
-
-## Contributing
-We welcome contributions! Please follow these steps:
-
-1. Fork the repository.
-2. Create a new branch for your feature or bugfix.
-3. Commit your changes with clear commit messages.
-4. Submit a pull request for review.
-
----
-
-## License
-This project is licensed under the Apache2 License. See the [LICENSE](LICENSE) file for details.
+Licensed under [Apache 2.0](LICENSE).

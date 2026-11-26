@@ -17,7 +17,7 @@ class PklModuleWriter {
             it.appendLine()
 
             if (hasSecretFields(module)) {
-                writeImport(it, "@hpkl-k8s-app/renderer.pkl")
+                writeImport(it, "@k8s-app/renderer.pkl")
             }
 
             module.imports?.forEach { import -> writeImport(it, import) }

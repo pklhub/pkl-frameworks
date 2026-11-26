@@ -24,7 +24,7 @@ class SpringMetadataReader(private val spec: GeneratorSpec, secretFields: Set<Pa
             URL("jar:file://${it.absolutePath}!/")
         }.toTypedArray(), this.javaClass.classLoader )
 
-        return jars.map {
+        val metadata = jars.map {
                 URL("jar:file://${it.absolutePath}!/META-INF/spring-configuration-metadata.json")
         }.mapNotNull {
             try {
@@ -32,20 +32,21 @@ class SpringMetadataReader(private val spec: GeneratorSpec, secretFields: Set<Pa
             } catch (e: IOException) {
                 null
             }
-        }.flatMap { p ->  processMetadata(p, classLoader, allSecretFields) }.groupBy(
-            { it.first }, {it.second}
-        ).map {
-            val module = it.value.reduce { acc, m -> acc.merge(m) }
-            Pair(it.key, module)
         }
+        val groups = objectMapper.createArrayNode()
+        val properties = objectMapper.createArrayNode()
+        for (tree in metadata) {
+            tree.path("groups").forEach { groups.add(it) }
+            tree.path("properties").forEach { properties.add(it) }
+        }
+
+        return processMetadata(groups, properties, classLoader, allSecretFields)
     }
 
-    private fun processMetadata(tree: JsonNode,
+    private fun processMetadata(groups: JsonNode,
+                                properties: JsonNode,
                                 classLoader: ClassLoader,
                                 secretFields: Set<Pattern>) : List<Pair<File,PklModule>> {
-        val groups = tree.get("groups")
-        val properties = tree.get("properties")
-
         val propertiesMap = collectProperties(properties)
 
         return groups.asSequence().mapNotNull {
