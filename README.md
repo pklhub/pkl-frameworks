@@ -40,6 +40,8 @@ Import modules using the dependency aliases, for example `import "@spring/Server
 
 The Spring Boot generators include `Flyway.pkl` in new builds. Import it with `import "@spring/Flyway.pkl"` from a release that includes it.
 
+For Kafka configuration, import `@spring/Kafka.pkl`. Spring Boot 2.7 exposes `spring.redis` through `@spring/Redis.pkl`. Spring Boot 3.3 and 4.2 expose `spring.data.redis` through the `redis` property in `@spring/Data.pkl`. For Spring Boot 4.2, use a release that includes the Kafka and Redis modules.
+
 For IntelliJ IDEA and VS Code, open the consumer workspace containing `PklProject` and the importing module. Run `pkl project resolve` from the directory containing `PklProject`, then run **Sync Projects** in IntelliJ IDEA or **Pkl: Sync projects** in VS Code. The importing file must be under the `PklProject` that declares the alias.
 
 ## Build and release

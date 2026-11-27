@@ -73,27 +73,32 @@ class JavaClassLoader(
             }
         }
 
-        val methods = clazz.declaredMethods.map {
-            it.name.lowercase() to it
-        }.toMap()
+        val methods = clazz.declaredMethods
+        val methodNames = methods.map { it.name }.toSet()
 
-        clazz.declaredMethods.forEach {
-
-            if (!Modifier.isStatic(it.modifiers)
-                && Modifier.isPublic(it.modifiers)
-                && it.name.startsWith("get")
-                ) {
-                val name = it.name.removePrefix("get")
-                if (methods.contains("set"+name.lowercase())) {
-                    result[name.replaceFirstChar { it.lowercase() }] = MetadataProperty(
-                        name.replaceFirstChar { it.lowercase() },
-                        it.returnType.canonicalName,
-                        null,
-                        null,
-                        "java"
-                    )
-                }
+        for (method in methods) {
+            if (Modifier.isStatic(method.modifiers) || !Modifier.isPublic(method.modifiers) ||
+                method.parameterCount != 0 || method.returnType == Void.TYPE
+            ) {
+                continue
             }
+
+            val suffix = when {
+                method.name.startsWith("get") -> method.name.removePrefix("get")
+                method.name.startsWith("is") && method.returnType == Boolean::class.javaPrimitiveType ->
+                    method.name.removePrefix("is")
+                else -> continue
+            }
+
+            // Spring also binds nested property objects exposed by getter-only JavaBeans.
+            val returnType = method.returnType
+            if (suffix.isEmpty() || ("set$suffix" !in methodNames && returnType.enclosingClass != clazz)) {
+                continue
+            }
+
+            val name = suffix.replaceFirstChar { it.lowercaseChar() }
+            val typeName = if (returnType.isArray) returnType.canonicalName else returnType.name
+            result[name] = MetadataProperty(name, typeName, null, null, "java")
         }
         if (clazz.superclass != null) {
             result.putAll(loadClassProperties(clazz.superclass))

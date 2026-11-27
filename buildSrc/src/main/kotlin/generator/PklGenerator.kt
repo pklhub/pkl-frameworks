@@ -43,6 +43,7 @@ class PklGenerator(classLoader: ClassLoader, secretFields: Set<Pattern>) {
             "java.lang.Float" to FloatType,
             "float" to FloatType,
             "java.lang.Boolean" to simpleType("Boolean"),
+            "boolean" to simpleType("Boolean"),
             "org.springframework.util.unit.DataSize" to TypeMapper("DataSize") {
                 it.toString().toPklDataSize()
             },
@@ -196,10 +197,8 @@ class PklGenerator(classLoader: ClassLoader, secretFields: Set<Pattern>) {
                 } else if (isCollection(it.type)) {
                     generateCollection(result, it, moduleName, allClasses)
                 } else if (!it.type.startsWith("java.")) {
-                    val innerClassName = javaClassWriter.tryToLoadClass(it.type)?.let { cl ->
-                            generateClass(cl, moduleName, allClasses)?.let { cl.className }
-                    } ?: "Any"
-                    generateProperty(it, innerClassName, null)
+                    val type = collectionElementType(result, it.type, moduleName, allClasses)
+                    generateProperty(it, type.type, null)
                 } else {
                     generateProperty(it, "Any", null)
                 }

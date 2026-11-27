@@ -25,6 +25,7 @@ val pklPackageVersion =
     project.version.toString()
 
 tasks.processResources {
+  inputs.property("pklPackageVersion", pklPackageVersion)
   eachFile {
     if (name == "PklProject.template") {
       expand("pklPackageVersion" to pklPackageVersion)
